@@ -21,6 +21,11 @@
 * **Storage:** Browser `localStorage` API
 * **Typography:** Google Fonts (Inter)
 
+## 📱 Installation (PWA)
+
+* **On Mobile:** Open the site in Chrome or Safari and click "Add to Home Screen".
+* **On Desktop:** Click the install icon in the browser address bar.
+
 ## 📁 Project Structure
 
 ```text
