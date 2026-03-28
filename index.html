@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Premium Study Summarizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <!-- CDN Libraries --> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+</head>
+<body>
+ 
+  <!-- Toast Notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Background Glow Elements -->
+  <div class="bg-glow bg-glow-1"></div>
+  <div class="bg-glow bg-glow-2"></div>
+
+  <!-- App Shell -->
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+          </svg>
+        </div>
+        <span class="logo-text">Premium Study Summarizer</span>
+      </div>
+
+      <!-- Glassmorphic Tab Navigation -->
+      <nav class="tab-nav" role="tablist">
+        <button class="tab-btn active" data-tab="summarize" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Summarize</span>
+        </button>
+        <button class="tab-btn" data-tab="quiz" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          <span>Quiz</span>
+        </button>
+        <button class="tab-btn" data-tab="history" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span>History</span>
+        </button>
+        <button class="tab-btn" data-tab="about" role="tab">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <span>About</span>
+        </button>
+      </nav>
+
+      <!-- Header Controls -->
+      <div class="header-controls">
+        <!-- Color Palette Picker Trigger -->
+        <button class="shade-btn" id="shadeBtn" title="Change Accent Color">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          <span id="shadeBtnLabel">Color</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Tab Panels -->
+    <main class="tab-content">
+
+      <!-- ============================
+           TAB 1: SUMMARIZE
+           ============================ -->
+      <section class="tab-panel active" id="tab-summarize">
+        <div class="two-col-grid">
+
+          <!-- Left: Input -->
+          <div class="col">
+            <div class="panel-header">
+              <!-- Input Mode Toggle -->
+              <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="text" id="modeText">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                  Text
+                </button>
+                <button class="mode-btn" data-mode="pdf" id="modePDF">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  PDF Upload
+                </button>
+              </div>
+              <div class="counters">
+                <span id="charCount">0 chars</span>
+                <span class="divider">|</span>
+                <span id="wordCount">0 words</span>
+              </div>
+            </div>
+
+            <!-- Glass Card -->
+            <div class="glass-card input-card">
+              <!-- Text Mode -->
+              <div id="textMode">
+                <div class="input-wrapper">
+                  <textarea
+                    id="notesInput"
+                    placeholder="Paste your study notes here…"
+                    spellcheck="false"
+                  ></textarea>
+                  <div class="dictation-controls">
+                    <button id="dictationLangBtn" class="btn-ghost small dictation-lang" title="Toggle Language">EN</button>
+                    <button id="micBtn" class="btn-ghost icon-btn mic-btn" title="Start Dictation">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PDF Mode (hidden) -->
+              <div id="pdfMode" class="hidden">
+                <div class="pdf-dropzone" id="pdfDropzone">
+                  <input type="file" id="pdfFileInput" accept=".pdf" class="hidden">
+                  <div class="pdf-idle" id="pdfIdle">
+                    <div class="pdf-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <p class="pdf-label">Drag & drop a PDF or</p>
+                    <button class="btn-outline small" id="pdfBrowseBtn">Browse File</button>
+                    <p class="pdf-hint">PDF text will be extracted automatically</p>
+                  </div>
+                  <div class="pdf-loaded hidden" id="pdfLoaded">
+                    <div class="pdf-file-info">
+                      <div class="pdf-file-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </div>
+                      <div>
+                        <p class="pdf-filename" id="pdfFilename">document.pdf</p>
+                        <p class="pdf-chars" id="pdfChars">0 characters extracted</p>
+                      </div>
+                      <button class="btn-ghost icon-btn" id="pdfRemoveBtn" title="Remove">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions -->
+              <div class="card-footer" style="flex-wrap: wrap; gap: 10px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="btn-ghost" id="clearBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6m4-6v6"/><path d="M9 6V4h6v2"/></svg>
+                    Clear
+                  </button>
+                  <select id="summaryModeSelect" class="mode-select" title="Summary Mode">
+                    <option value="detailed">Detailed</option>
+                    <option value="short">Short</option>
+                    <option value="bullet">Bullet Points</option>
+                    <option value="simple">Simple</option>
+                  </select>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                  <button class="btn-ghost" id="eli10Btn">ELI10</button>
+                  <button class="btn-primary" id="summarizeBtn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <span id="summarizeBtnLabel">Summarize</span>
+                  </button>
+                  <kbd class="kbd-hint" title="Keyboard shortcut">Ctrl+↵</kbd>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="error-banner hidden" id="summarizeError">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="summarizeErrorText"></span>
+            </div>
+          </div>
+
+          <!-- Right: Output -->
+          <div class="col">
+            <div class="panel-header">
+              <h2 class="section-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Key Takeaways
+              </h2>
+            </div>
+
+            <div class="glass-card output-card" id="outputCard">
+              <!-- Empty State -->
+              <div class="output-state" id="emptyState">
+                <div class="empty-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                </div>
+                <h3>Ready to Summarize</h3>
+                <p>Paste text or upload a PDF to get a smart bullet-point summary.</p>
+              </div>
+
+              <!-- Loading State -->
+              <div class="output-state hidden" id="loadingState">
+                <div class="spinner"></div>
+                <p class="loading-text" id="loadingText">Extracting key insights…</p>
+                <div class="progress-wrap hidden" id="chunkProgressWrap" style="width: 100%; max-width: 250px; margin-top: 15px;">
+                  <div class="progress-container" style="background: var(--input-bg); border-radius: 50px; height: 6px; overflow: hidden; position: relative;">
+                    <div class="progress-bar-fill" id="chunkProgressBar" style="position: absolute; left: 0; top: 0; bottom: 0; background: var(--accent); width: 0%; transition: width 0.3s ease;"></div>
+                  </div>
+                  <p class="progress-text" id="chunkProgressText" style="font-size: 0.75rem; color: var(--text-dim); margin-top: 5px;">0 / 0 chunks</p>
+                </div>
+              </div>
+
+              <!-- Result State -->
+              <div class="output-result hidden" id="resultState">
+                <div class="summary-content" id="summaryContent"></div>
+              </div>
+
+              <!-- Footer Actions -->
+              <div class="card-footer" id="outputFooter">
+                <div style="display:flex; gap:8px;">
+                  <button class="btn-outline" id="savePdfBtn" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    Save PDF
+                  </button>
+                  <button class="btn-outline listen-btn" id="listenBtn" disabled>
+                    <svg class="listen-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+                    <svg class="listen-stop hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+                    <span>Listen</span>
+                  </button>
+                </div>
+                <button class="btn-accent" id="copyBtn" disabled>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  <span id="copyBtnLabel">Copy Summary</span>
+                </button>
+              </div>
+
+              <!-- Test Me Now Hook -->
+              <div class="test-me-wrap hidden" id="testMeWrap" style="padding: 16px 20px; border-top: 1px solid var(--border);">
+                <button class="btn-primary highlight-btn" id="testMeBtn" style="width: 100%; font-size: 1.05rem; padding: 12px; gap: 8px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                  Test Me Now
+                </button>
+              </div>
+            </div><!-- /#outputCard -->
+
+            <!-- Mind Map Card -->
+            <div class="glass-card hidden" id="mindMapCard" style="margin-top: 24px; padding: 24px; display: flex; flex-direction: column; align-items: center; overflow: hidden;">
+              <h3 style="margin-bottom: 20px; align-self: flex-start; color: var(--accent); display: flex; align-items: center; gap: 8px; font-size: 1rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                Interactive Mind Map
+              </h3>
+              <div id="mindMapContainer" style="width: 100%; overflow-x: auto; text-align: center;"></div>
+            </div>
+
+          </div><!-- /.col -->
+        </div>
+      </section>
+
+      <!-- ============================
+           TAB 2: QUIZ
+           ============================ -->
+      <section class="tab-panel hidden" id="tab-quiz">
+        <div class="quiz-layout">
+
+          <!-- Quiz Setup -->
+          <div class="glass-card quiz-setup" id="quizSetup">
+            <h2 class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Generate a Quiz
+            </h2>
+            <p class="card-subtitle">Paste study notes below and get an interactive multiple-choice quiz.</p>
+
+            <div class="field-group">
+              <label class="field-label">Study Notes</label>
+              <textarea id="quizInput" placeholder="Paste your study notes here…" rows="6"></textarea>
+              <button class="btn-ghost small" id="useCurrentNotesBtn">↑ Use notes from Summarize tab</button>
+            </div>
+
+            <div class="field-group">
+              <div class="slider-header">
+                <label class="field-label">Number of Questions</label>
+                <span class="slider-value-badge" id="questionCountLabel">5</span>
+              </div>
+              <div class="slider-wrap">
+                <input type="range" id="questionCount" min="1" max="10" value="5" class="range-slider" list="tickmarks">
+                <datalist id="tickmarks">
+                  <option value="1"></option><option value="2"></option><option value="3"></option>
+                  <option value="4"></option><option value="5"></option><option value="6"></option>
+                  <option value="7"></option><option value="8"></option><option value="9"></option>
+                  <option value="10"></option>
+                </datalist>
+              </div>
+              <div class="range-labels"><span>1</span><span>10</span></div>
+            </div>
+
+            <div class="error-banner hidden" id="quizError">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span id="quizErrorText"></span>
+            </div>
+
+            <button class="btn-primary full-width" id="generateQuizBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span id="quizBtnLabel">Generate Quiz</span>
+            </button>
+          </div>
+
+          <!-- Quiz Game -->
+          <div class="glass-card quiz-game hidden" id="quizGame">
+            <div class="quiz-header">
+              <div class="quiz-progress-info">
+                <span id="questionNum">Question 1</span>
+                <span id="questionTotal">of 5</span>
+              </div>
+              <div class="quiz-score-badge">Score: <strong id="quizScore">0</strong></div>
+            </div>
+
+            <div class="progress-bar-wrap">
+              <div class="progress-bar" id="quizProgressBar"></div>
+            </div>
+
+            <div class="quiz-question-area">
+              <p class="quiz-question" id="quizQuestion"></p>
+              <div class="quiz-options" id="quizOptions"></div>
+              <div class="answer-feedback hidden" id="answerFeedback">
+                <span id="feedbackText"></span>
+              </div>
+            </div>
+
+            <div class="quiz-footer">
+              <button class="btn-ghost" id="quizBackBtn">← Back to Setup</button>
+              <button class="btn-primary" id="quizNextBtn" disabled>Next →</button>
+            </div>
+          </div>
+
+          <!-- Quiz Results -->
+          <div class="glass-card quiz-results hidden" id="quizResults">
+            <div class="results-icon" id="resultsIcon">
+              <svg viewBox="0 0 24 24" fill="none" class="results-svg" stroke="currentColor" stroke-width="2" style="width:64px; height:64px; stroke:var(--accent);"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+            </div>
+            <h3 id="resultsTitle">Quiz Complete!</h3>
+            <p class="results-score" id="resultsScore"></p>
+            <p class="results-message" id="resultsMessage"></p>
+            <div class="results-actions">
+              <button class="btn-outline" id="quizRetryBtn">Try Again</button>
+              <button class="btn-primary" id="quizNewBtn">New Quiz</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================
+           TAB 3: HISTORY
+           ============================ -->
+      <section class="tab-panel hidden" id="tab-history">
+        <div class="history-header">
+          <h2 class="section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+            Past Summaries
+          </h2>
+          <button class="btn-ghost danger" id="clearHistoryBtn">Clear All</button>
+        </div>
+        <div class="history-search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="historySearchInput" class="history-search" placeholder="Search past summaries...">
+        </div>
+        <div id="historyList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ============================
+           TAB 4: ABOUT / FAQ
+           ============================ -->
+      <section class="tab-panel hidden" id="tab-about">
+        <div class="about-layout">
+          <div class="glass-card about-card">
+            <div class="about-logo">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            </div>
+            <h2>AI Study Summarizer</h2>
+            <p>A powerful study tool that uses AI to turn your notes and PDFs into clear, concise bullet-point summaries and interactive quizzes — all in seconds.</p>
+            <div class="feature-badges">
+              <span class="badge">✦ AI-Powered</span>
+              <span class="badge">✦ PDF Support</span>
+              <span class="badge">✦ Quiz Generator</span>
+              <span class="badge">✦ Export to PDF</span>
+              <span class="badge">✦ History Tracking</span>
+            </div>
+          </div>
+
+          <div class="faq-section">
+            <h2 class="section-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              Frequently Asked Questions
+            </h2>
+            <div class="faq-list" id="faqList">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ========================================
+       COLOR PICKER MODAL (Body-level)
+       ======================================== -->
+  <div class="palette-overlay hidden" id="paletteOverlay">
+    <div class="palette-panel" id="palettePanel">
+      <div class="palette-modal-header">
+        <span class="palette-panel-title">Choose Accent Color</span>
+        <button class="palette-close-btn" id="paletteCloseBtn" title="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="palette-swatches" id="paletteSwatches"></div>
+    </div>
+  </div>
+
+  <!-- Glossary Tooltip -->
+  <div id="glossaryTooltip" class="glass-tooltip hidden"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
