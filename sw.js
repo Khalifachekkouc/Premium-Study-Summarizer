@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ai-study-os-v2';
+const CACHE_NAME = 'ai-study-os-v4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
