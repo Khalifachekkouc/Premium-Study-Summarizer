@@ -8,7 +8,7 @@
    0. CONFIGURATION — Replace with your Google Gemini API key
    Get a free one at: https://aistudio.google.com/app/apikey
    ============================================================ */
-const API_KEY = "AIzaSyB9IC_YFBH1XKkBNppLn8iL4nXFqKE0V48";
+const API_KEY = "AIzaSyDNoz2eO06rxqDS5VqVzBIRuzhFsJ9EevY";
 
 /* ============================================================
    1. COLOR PALETTE SYSTEM
